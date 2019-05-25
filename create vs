@@ -1,0 +1,36 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: f5-vxlan-linguqe-cfmap
+  namespace: f5-vxlan-lingque
+  labels:
+    f5type: virtual-server
+data:
+  # See the f5-schema table for schema-controller compatibility
+  # https://clouddocs.f5.com/containers/latest/releases_and_versioning.html#f5-schema
+  schema: "f5schemadb://bigip-virtual-server_v0.1.7.json"
+  data: |
+    {
+      "virtualServer": {
+        "backend": {
+          "servicePort": 80,
+          "serviceName": "f5-vxlan-lingque-svc",
+          "healthMonitors": [{
+            "interval": 30,
+            "protocol": "http",
+            "send": "GET /",
+            "recv": "Welcome",
+            "timeout": 120
+          }]
+        },
+        "frontend": {
+          "virtualAddress": {
+            "port": 1111,
+            "bindAddr": "10.194.184.23"
+          },
+          "partition": "LingQue",
+          "balance": "least-connections-member",
+          "mode": "http"
+        }
+      }
+    }
