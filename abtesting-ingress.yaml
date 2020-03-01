@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: abtesting-v1-v2-ingress
+  namespace: f5-vxlan-lingque
+  annotations:
+        virtual-server.f5.com/ip: "10.1.1.1"
+        virtual-server.f5.com/http-port: "800"
+        virtual-server.f5.com/partition: "LingQue"
+        virtual-server.f5.com/health: |
+          [
+                {
+                  "path":         "abtesting.com/API/",
+                  "send":         "HTTP GET /",
+                  "interval":       5,
+                  "timeout"       15
+                }, {
+                  "path":         "abtesting.com/hostname.html",
+                  "send":         "HTTP GET /",
+                  "interval":       5,
+                  "timeout"       15
+                }
+          ]
+        kubernetes.io/ingress.class: "f5"
+spec:
+  rules:
+  - host: abtesting.com
+    http:
+       paths:
+       - path: /API/
+         backend:
+            serviceName: abtesting-v1
+            servicePort: 80
+  - host: abtesting.com
+    http:
+       paths:
+       - path: /hostname.html
+         backend:
+            serviceName: abtesting-v2
+            servicePort: 80
